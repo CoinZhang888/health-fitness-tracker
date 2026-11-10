@@ -1,52 +1,129 @@
 # Health & Fitness Tracker
 
+A personal health and weight management web application featuring health data tracking, trend analysis, 3D body comparison, and goal planning.
+
 ## Open the app
 
 **[Open Health & Fitness Tracker →](https://health-fitness-journal.daringguppy257.chatgpt.site/)**
 
-This repository contains the source code. Use the link above to open the working application.
+No account is required to explore the app. Select **Try sample journal** to explore a complete example, or start recording your own data.
 
-The live app is accessible without an account. Guest journals are stored in the visitor’s own browser; existing signed-in accounts keep their separate private database records.
+Guest journals are saved in the visitor's own browser. Existing signed-in accounts retain their separate private database records. Clearing browser storage removes guest entries, so export a JSON backup before changing devices or clearing browser data.
 
-私人健康日志：React 19、TypeScript、Tailwind 4、Recharts、tRPC 11、Drizzle、Vitest。包含仪表盘、体重、体型示意、运动、睡眠、围度、历史、规划与设置。
+## Features
 
-## 部署架构
+- **Dashboard:** current weight, total weight lost, weekly exercise, average sleep, recording progress, and goal progress.
+- **Weight:** create, edit, and delete entries; explore connected trend charts, time filters, and weekly summaries.
+- **Weekly pace:** compare actual weight loss this week with the cumulative average from the first recorded day.
+- **Exercise:** track activity type, duration, and intensity, with daily charts and weekly totals.
+- **Sleep:** review duration, average, shortest and longest sleep, and consistency based on duration variability.
+- **Measurements:** record chest, waist, and hip measurements, with trend charts and an editable waist goal.
+- **Body Studio:** customize current and goal 3D avatars, including body proportions, facial features, surface tones, and hair silhouettes.
+- **History:** explore monthly and weekly calendars, daily details, recording completeness, and period summaries.
+- **Planning:** set weight and waist goals, target dates, exercise and sleep targets, and weekly weight plans.
+- **Settings:** update height, manage sample data, and export records and goals as JSON.
 
-当前可托管版本运行在 Cloudflare Worker + D1。访客无需登录即可使用，数据保存在各自浏览器；已有登录账号的私人数据仍单独保存在数据库。没有 Manus OAuth 凭据，也没有 MySQL 服务，因此本版未使用 Express/MySQL/Manus；部署平台不支持常驻 Express 或 MySQL 原生 TCP。记录通过 tRPC 保存至 D1，所有查询和写入使用服务端登录 ID 隔离。访客模式使用独立的本机存储，不读取或修改已有账号的数据库记录。
+The interface uses English throughout, a light monochrome palette, bold system typography, and persistent vertical navigation on the left. Smaller screens use an icon rail.
 
-## 开发
+## Technology
 
-`npm install`、`npm run check`、`npm test`、`npm run db:generate`、`npm run build`。
+React 19, TypeScript, Tailwind CSS 4, Recharts, Three.js, tRPC 11, Zod, Drizzle ORM, Cloudflare Workers, Cloudflare D1, and Vitest.
 
-`npm run dev` 提供前端开发；生产 Worker 提供会话检测与账号接口。访客模式可直接使用；数据库接口仍要求登录。数据库迁移位于 drizzle/，部署时由 Sites 应用。没有硬编码开发用户或绕过登录。
+## Architecture and storage
 
-## 数据结构
+The hosted application runs on a Cloudflare Worker. The Worker serves the application, session discovery, static icons, and tRPC account APIs.
 
-`records` 存储经过 Zod 严格校验的 WeightRecord、ExerciseRecord、SleepRecord、MeasurementRecord，带 kind/date/user_id；goals 存储 UserGoal 及嵌套的周计划 PlanningRecord。`users` 预留个人档案，平台身份不依赖该表。记录 ID 与用户 ID 联合作为主键。
+- **Guest mode:** validated entries and goals are saved in device-local browser storage. Guest mode does not query or modify signed-in users' database records.
+- **Account mode:** records and goals are stored in D1 through tRPC. Every database query and mutation is scoped to the server-provided user identity.
+- **Access control:** the website is publicly accessible. Account database APIs continue to reject unauthenticated requests.
+- **Deployment metadata:** neutral build configuration is stored in `.hosting/hosting.json`. Production hosting identity is managed separately from this public repository.
 
-体重/睡眠/围度同一天各一条，运动允许同一天多条；重复记录返回冲突提示。数据可新增、编辑、删除；目标、身高、周计划独立保存。示例需用户主动加载，带 demo 标记并可独立清除。JSON 导出完整记录与目标。
+This implementation uses Worker/D1 hosting rather than a persistent Express server or a MySQL connection.
 
-## 统计口径
+## Development
 
-累计平均 = (首条体重 - 最新体重) / ((今天 - 首条记录日期) / 7)。少于两条或经过零天时不生成速率。本周减重 = 周一至今天内首条体重 - 末条体重；少于两条不生成比较。周内实际值不折算为整周。差值容差 ±0.01 kg。负值表示增重，未截断为 0。缺失数据不补零。所有日期按日历日期计算，避免夏令时影响。
+Use a recent Node.js version compatible with the locked dependencies. Node.js 24 was used for the current development environment and tests.
 
-睡眠规律性为时长标准差，不推断就寝时间。模型是 BMI 驱动的中性轮廓示意，不预测真实体脂和形状。目标日期为累计速度的线性估算。
+```sh
+npm ci
+npm run check
+npm test
+npm run build
+```
 
-## 验证
+Available commands:
 
-Vitest 覆盖累计起点、部分周、单条/空数据、增重、零变化、缺失周记录、未来数据过滤和周一分组。前端表单及服务端 Zod 双层校验。在线数据库与浏览器验证情况以交付说明为准。
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite front-end development server. |
+| `npm run check` | Run TypeScript checks. |
+| `npm test` | Run the Vitest suite. |
+| `npm run db:generate` | Generate Drizzle database migrations. |
+| `npm run build` | Generate app icons and build the client and Worker bundle. |
 
+The Vite server alone does not provide Worker endpoints. A complete local preview requires a Worker-compatible runtime or an API proxy for `/api/session` and `/api/trpc/`. The production Worker provides those routes. Database migrations are stored in `drizzle/` and are applied by the hosting deployment workflow.
 
-## Body Studio and visual system
+There is no hardcoded development account or account-authentication bypass.
 
-The interface is English throughout, with a light monochrome design, bold system typography and persistent left vertical navigation with a light gray track and black selected items.
+## Data model
 
-Body Studio uses original procedural Three.js geometry. Current and goal avatars are independently editable. Body controls cover height, weight, chest, waist, hips, shoulders, arms, thighs, calves, leg proportions and muscle definition. Face controls modify head size, facial width, jaw, chin, cheeks, eyes, eye spacing, nose and mouth. Surface tones and hair silhouettes are also editable. Drag to rotate both models in place, scroll to zoom, or use accessible Front / Side / Back and zoom controls. Face editing switches to a close-up. Wireframe and measurement overlays are optional.
+- `records` stores Zod-validated weight, exercise, sleep, and measurement records, with a record ID, user ID, record type, date, and serialized data.
+- `goals` stores user goals, weekly plans, and optional current/target avatar configurations.
+- `users` reserves a place for profile metadata; platform identity does not depend on that table.
+- The record ID and user ID form a composite primary key.
 
-Both avatar configurations are saved in the authenticated user's goals JSON as optional `bodyModels`, validated by a shared Zod schema. Existing profiles are compatible without migrations. Other goal forms preserve saved model fields. Avatar edits do not rewrite health records or actual goals; copying latest measurements is an explicit action. The models are approximate visualization, not body scans or predictions.
+Each date supports one weight, sleep, and measurement entry. Multiple exercise entries are allowed on the same day. Entries can be created, edited, and deleted. Duplicate daily entries return a clear error.
 
-Verification: 19 tests cover the existing calculations and records plus avatar parameter bounds, finite geometry at extremes, actual body/face deformation, independent defaults, saved configurations, validation and user isolation. WebGL browser rendering has not been verified in this environment because the managed browser tool is unavailable.
+Sample data is loaded only on request, explicitly marked, and independently removable. JSON exports include records and goals.
 
-## Build configuration
+## Weight-loss calculations
 
-Neutral deployment metadata is stored in `.hosting/hosting.json`. Production hosting identity is managed separately from this public repository. Guest entries remain on the device and can be exported as JSON; clearing browser storage removes them.
+```text
+Total weight lost = first recorded weight - latest recorded weight
+
+Elapsed weeks = (today - first recorded date) / 7
+
+Cumulative weekly average = total weight lost / elapsed weeks
+
+Actual weight loss this week = first weight this week - latest weight this week
+
+Pace difference = actual weight loss this week - cumulative weekly average
+```
+
+The week begins on Monday. The weekly result compares the first and latest entries within the current week; it is not prorated to a full week.
+
+- **FASTER:** difference greater than 0.01 kg.
+- **SLOWER:** difference less than -0.01 kg.
+- **ON TRACK:** difference within ±0.01 kg.
+- **NEED DATA:** insufficient entries to calculate a comparison.
+
+No average rate is produced with fewer than two weight entries or zero elapsed days. Weekly comparisons require at least two entries in the current week. Negative weight loss represents weight gain and is not clamped to zero. Missing readings are not filled with zero. Calendar-date arithmetic avoids daylight-saving time shifts.
+
+Estimated goal dates use a linear projection of the cumulative average and are shown only when that average weight-loss rate is positive. They are estimates, not guarantees.
+
+## Body Studio
+
+Body Studio uses original procedural Three.js geometry. Current and goal avatars are independently editable.
+
+Body controls include height, weight, chest, waist, hips, shoulder width, arms, thighs, calves, leg proportion, and muscle definition. Face controls include head size, face width, jaw, chin, cheeks, eye size, eye spacing, nose, and mouth. Surface tones and hair silhouettes are also editable.
+
+Drag to rotate both avatars in place, scroll to zoom, or use the Front, Side, Back, and zoom controls. Face editing switches to a close-up view. Wireframe and measurement guides are optional.
+
+Both avatar configurations are saved as optional `bodyModels` fields, validated with a shared Zod schema. Other goal forms preserve these fields. Avatar edits do not rewrite health entries or actual goals; copying journal measurements into a model is an explicit action.
+
+The models are approximate visualizations, not body scans or predictions of appearance, body fat, or muscle mass. Sleep consistency describes variation in sleep duration, not bedtime regularity. The app does not provide medical diagnoses.
+
+## Health Logo
+
+The approved Health Logo is a bold toothy grin with a beauty spot on its right. It is reused in the interface, browser favicon, and home-screen app icons. Icons are generated from the same source mark by `scripts/generate-icons.mjs`.
+
+## Validation
+
+The current suite contains 24 tests covering:
+
+- Cumulative weight-loss calculations and edge cases.
+- Record creation, editing, deletion, validation, and user isolation.
+- Avatar parameter bounds, finite geometry, body/face deformation, and persistence.
+- Guest journals, device isolation, duplicate-date rules, and storage errors.
+
+TypeScript checks and the production build pass. Anonymous HTTP checks confirm public access to the application and session endpoint, while private account APIs return 401 without authentication. Browser interaction and WebGL rendering have not been verified in the managed environment because the browser-control tool is unavailable.
