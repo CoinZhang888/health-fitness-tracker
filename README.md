@@ -2,9 +2,9 @@
 
 A personal health and weight management web application featuring health data tracking, trend analysis, 3D body comparison, and goal planning.
 
-# 🚀 **[OPEN THE APP →](https://health-fitness-journal.daringguppy257.chatgpt.site/)**
+# 🌐 **[OPEN THE WEBSITE →](https://health-fitness-journal.daringguppy257.chatgpt.site/)**
 
-**👆 Click above to launch Health & Fitness Tracker. No account required.**
+**👆 Click above to visit the Health & Fitness Tracker website. No account required.**
 
 Select **Try sample journal** to explore a complete example, or start recording your own data.
 
