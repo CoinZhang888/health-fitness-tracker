@@ -2,11 +2,11 @@
 
 A personal health and weight management web application featuring health data tracking, trend analysis, 3D body comparison, and goal planning.
 
-## Open the app
+# 🚀 **[OPEN THE APP →](https://health-fitness-journal.daringguppy257.chatgpt.site/)**
 
-**[Open Health & Fitness Tracker →](https://health-fitness-journal.daringguppy257.chatgpt.site/)**
+**👆 Click above to launch Health & Fitness Tracker. No account required.**
 
-No account is required to explore the app. Select **Try sample journal** to explore a complete example, or start recording your own data.
+Select **Try sample journal** to explore a complete example, or start recording your own data.
 
 Guest journals are saved in the visitor's own browser. Existing signed-in accounts retain their separate private database records. Clearing browser storage removes guest entries, so export a JSON backup before changing devices or clearing browser data.
 
