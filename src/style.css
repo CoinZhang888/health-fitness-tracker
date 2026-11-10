@@ -32,3 +32,5 @@
 @media(max-width:420px){.app{--rail-width:56px}.primary-navigation button{min-height:40px;padding:9px 0}.primary-navigation button svg{width:19px;height:19px}}
 .topbar .brand>.smile-mark{width:43px;height:32px;flex-shrink:0;color:#1d1d1f}.topbar .brand:has(.smile-mark){gap:9px}
 @media(max-width:700px){.topbar .brand>.smile-mark{width:39px;height:30px}}
+
+.guest-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid #dedee3;background:#fff;border-radius:8px;padding:14px 18px;margin-bottom:22px;font-size:11px;color:#6e6e73;line-height:1.6}.guest-banner button{color:#1d1d1f;font-weight:650;white-space:nowrap}@media(max-width:700px){.guest-banner{align-items:flex-start;flex-direction:column;font-size:10px;gap:8px}}

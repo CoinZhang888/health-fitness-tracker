@@ -6,19 +6,19 @@
 
 This repository contains the source code. Use the link above to open the working application.
 
-The app currently requires sign-in and access permission. Public access to this repository does not automatically grant access to the app.
+The live app is accessible without an account. Guest journals are stored in the visitor’s own browser; existing signed-in accounts keep their separate private database records.
 
 私人健康日志：React 19、TypeScript、Tailwind 4、Recharts、tRPC 11、Drizzle、Vitest。包含仪表盘、体重、体型示意、运动、睡眠、围度、历史、规划与设置。
 
 ## 部署架构
 
-当前可托管版本运行在 Cloudflare Worker + D1，使用 Sites 的私有 ChatGPT 登录。没有 Manus OAuth 凭据，也没有 MySQL 服务，因此本版未使用 Express/MySQL/Manus；部署平台不支持常驻 Express 或 MySQL 原生 TCP。记录通过 tRPC 保存至 D1，所有查询和写入使用服务端登录 ID 隔离。没有将健康记录存于 localStorage。
+当前可托管版本运行在 Cloudflare Worker + D1。访客无需登录即可使用，数据保存在各自浏览器；已有登录账号的私人数据仍单独保存在数据库。没有 Manus OAuth 凭据，也没有 MySQL 服务，因此本版未使用 Express/MySQL/Manus；部署平台不支持常驻 Express 或 MySQL 原生 TCP。记录通过 tRPC 保存至 D1，所有查询和写入使用服务端登录 ID 隔离。访客模式使用独立的本机存储，不读取或修改已有账号的数据库记录。
 
 ## 开发
 
 `npm install`、`npm run check`、`npm test`、`npm run db:generate`、`npm run build`。
 
-`npm run dev` 仅提供前端开发；完整接口由生产 Worker 提供，未登录接口返回 401。数据库迁移位于 drizzle/，部署时由 Sites 应用。没有硬编码开发用户或绕过登录。
+`npm run dev` 提供前端开发；生产 Worker 提供会话检测与账号接口。访客模式可直接使用；数据库接口仍要求登录。数据库迁移位于 drizzle/，部署时由 Sites 应用。没有硬编码开发用户或绕过登录。
 
 ## 数据结构
 
@@ -46,3 +46,7 @@ Body Studio uses original procedural Three.js geometry. Current and goal avatars
 Both avatar configurations are saved in the authenticated user's goals JSON as optional `bodyModels`, validated by a shared Zod schema. Existing profiles are compatible without migrations. Other goal forms preserve saved model fields. Avatar edits do not rewrite health records or actual goals; copying latest measurements is an explicit action. The models are approximate visualization, not body scans or predictions.
 
 Verification: 19 tests cover the existing calculations and records plus avatar parameter bounds, finite geometry at extremes, actual body/face deformation, independent defaults, saved configurations, validation and user isolation. WebGL browser rendering has not been verified in this environment because the managed browser tool is unavailable.
+
+## Build configuration
+
+Neutral deployment metadata is stored in `.hosting/hosting.json`. Production hosting identity is managed separately from this public repository. Guest entries remain on the device and can be exported as JSON; clearing browser storage removes them.

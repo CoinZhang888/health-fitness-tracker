@@ -1,0 +1,4 @@
+{
+  "entrypoint": "dist/server/index.js",
+  "databaseBinding": "DB"
+}

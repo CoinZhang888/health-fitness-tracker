@@ -1,0 +1,10 @@
+import{describe,it,expect}from'vitest';import{guestRequest,guestKey}from'./guest-store';import{defaults}from'./domain';import{baseAvatar}from'./avatar-config';
+const memory=()=>{const data=new Map<string,string>();return{getItem:(k:string)=>data.get(k)||null,setItem:(k:string,v:string)=>{data.set(k,v)}}};
+const r={id:'w1',kind:'weight',date:'2026-01-01',weight:80};
+describe('account-free device journals',()=>{
+ it('saves, edits, reads and deletes without an account',()=>{const s=memory();guestRequest('save',r,s);guestRequest('save',{...r,weight:79},s);expect((guestRequest('state',undefined,s) as any).records[0].weight).toBe(79);guestRequest('remove',{id:'w1'},s);expect((guestRequest('state',undefined,s) as any).records).toHaveLength(0)});
+ it('isolates visitors and persists within the same browser storage',()=>{const a=memory(),b=memory();guestRequest('save',r,a);expect((guestRequest('state',undefined,b) as any).records).toHaveLength(0);expect((guestRequest('state',undefined,a) as any).records).toHaveLength(1)});
+ it('keeps validation and duplicate-date rules',()=>{const s=memory();expect(()=>guestRequest('save',{...r,weight:-1},s)).toThrow();guestRequest('save',r,s);expect(()=>guestRequest('save',{...r,id:'w2'},s)).toThrow('already exists')});
+ it('persists goals and both body models; clears only sample records',()=>{const s=memory();const goals={...defaults(),bodyModels:{current:baseAvatar,target:{...baseAvatar,weight:68}}};guestRequest('goals',goals,s);guestRequest('save',r,s);guestRequest('save',{...r,id:'w2',date:'2026-01-02',demo:true},s);guestRequest('clearDemo',{},s);const state=guestRequest('state',undefined,s) as any;expect(state.goals).toEqual(goals);expect(state.records).toHaveLength(1)});
+ it('reports blocked or corrupt browser storage rather than pretending to save',()=>{expect(()=>guestRequest('save',r,{getItem:()=>null,setItem:()=>{throw Error('blocked')}})).toThrow('could not save');const s=memory();s.setItem(guestKey,'invalid-json');expect(()=>guestRequest('state',undefined,s)).toThrow('could not be read')});
+});
