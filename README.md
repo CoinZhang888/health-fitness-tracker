@@ -1,5 +1,13 @@
 # Health & Fitness Tracker
 
+## Open the app
+
+**[Open Health & Fitness Tracker →](https://health-fitness-journal.daringguppy257.chatgpt.site/)**
+
+This repository contains the source code. Use the link above to open the working application.
+
+The app currently requires sign-in and access permission. Public access to this repository does not automatically grant access to the app.
+
 私人健康日志：React 19、TypeScript、Tailwind 4、Recharts、tRPC 11、Drizzle、Vitest。包含仪表盘、体重、体型示意、运动、睡眠、围度、历史、规划与设置。
 
 ## 部署架构
